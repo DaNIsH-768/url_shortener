@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | URL Shortener</title>
+    <link rel="stylesheet" href="static/css/signin.css">
+</head>
+<body>
+    <section class="signin-shell">
+        <div class="brand">
+            <div class="brand-mark"><span>U</span></div>
+            <div class="brand-copy">
+                <h1>URL Shortener</h1>
+                <p>Sign in to access your custom links, analytics, and fast URL management in one sleek dashboard.</p>
+            </div>
+        </div>
+
+        <form class="form-card" action="/signin" method="post">
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="primary-btn">Sign In</button>
+            <p class="secondary-text">New here? <a href="/signup">Create an account</a> or continue as a guest.</p>
+        </form>
+
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">1</div>
+                <div>Secure authentication with instant access to all your URLs.</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">2</div>
+                <div>Personalized dashboard built for fast link creation and tracking.</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">3</div>
+                <div>Modern UI with responsive design, optimized for desktop and mobile.</div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
