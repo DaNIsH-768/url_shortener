@@ -1,18 +1,19 @@
 from fastapi import FastAPI
-from sqlmodel import create_engine
-import os
-from dotenv import load_dotenv
+from database import initialise_db
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    initialise_db()
+    yield
+
 
 app = FastAPI(
     title="URL Shortener API",
     description="A URL shortening service with analytics",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
-
-load_dotenv()
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(os.environ["DATABASE_URL"], connect_args=connect_args)
 
 @app.get("/health")
 def health():
