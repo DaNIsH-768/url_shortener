@@ -1,20 +1,19 @@
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
+from sqlmodel import create_engine
+import os
+from dotenv import load_dotenv
 
-app = FastAPI()
+app = FastAPI(
+    title="URL Shortener API",
+    description="A URL shortening service with analytics",
+    version="0.1.0"
+)
 
-templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+load_dotenv()
 
-@app.get("/")
-async def root(request: Request):
-    return templates.TemplateResponse(request, name='home.html')
+connect_args = {"check_same_thread": False}
+engine = create_engine(os.environ["DATABASE_URL"], connect_args=connect_args)
 
-@app.get("/signin")
-async def signin(request: Request):
-    return templates.TemplateResponse(request, name='signin.html')
-
-@app.get("/signup")
-async def signup(request: Request):
-    return templates.TemplateResponse(request, name='signup.html')
+@app.get("/health")
+def health():
+    return {"status": "ok"}
