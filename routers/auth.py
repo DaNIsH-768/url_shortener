@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sqlmodel import Session, select
 from passlib.hash import bcrypt
 from database import engine
@@ -26,14 +26,14 @@ def insert_user(user:User):
         session.add(user)
         session.commit()
 
-@router.post("/auth/register")
+@router.post("/auth/register", status_code=201)
 async def register(register_query: RegisterParams):
 
     if register_query.password != register_query.confirm_password:
-        return {"message": "Passwords do not match."}
+        raise HTTPException(status_code=400, detail="Password do not match")
 
     if select_email(register_query.email):
-        return {"message": "Email already registered."}
+        raise HTTPException(status_code=409, detail="Email already registered")
 
     h = bcrypt.hash(register_query.password)
     user = User(email = register_query.email, password = h)
