@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from database import initialise_db
+from .database import initialise_db
 from contextlib import asynccontextmanager
-from routers import auth
+from .routers import auth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
