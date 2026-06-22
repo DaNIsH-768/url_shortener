@@ -33,7 +33,7 @@ def insert_user(user:User, session: Session):
     session.add(user)
 
 @router.post("/auth/register", status_code=201)
-async def register(register_query: RegisterParams,session: Session = Depends(get_session)):
+async def register(register_query: RegisterParams, session: Session = Depends(get_session)):
 
     if register_query.password != register_query.confirm_password:
         raise HTTPException(status_code=400, detail="Password do not match")

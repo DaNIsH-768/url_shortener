@@ -1,9 +1,10 @@
-from fastapi import HTTPException, APIRouter, Depends
-from sqlmodel import Session
+from fastapi import HTTPException, APIRouter, Depends, Request
+from fastapi.responses import RedirectResponse
+from sqlmodel import Session, select
 import jwt
 import os
 from ..database import get_session
-from ..models import Urls
+from ..models import Urls, Clicks
 from ..utils import to_base62, generate_unique_code
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -53,4 +54,25 @@ def add_url(url_query: UrlParams, session: Session = Depends(get_session), user_
     "short_code": short_code,
     "short_url": f"http://localhost:8000/{short_code}"
 }
+
+class RedirectParams(BaseModel):
+    pass
+
+@router.get("/{short_code}", status_code=301)
+def redirect_user(short_code:str, request: Request, session: Session = Depends(get_session)):
+    statment = select(Urls).where(Urls.short_code == short_code)
+    results = session.exec(statment)
+    res = results.first()
+
+    if not res:
+        raise HTTPException(status_code=404, detail="No such url exists")
+    
+    original_url = res.original_url
+
+    click = Clicks(clicked_from=request.client.host, url_id=res.id)
+    session.add(click)
+    session.commit()
+    return RedirectResponse(original_url)
+
+
 
