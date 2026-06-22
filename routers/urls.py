@@ -55,6 +55,13 @@ def add_url(url_query: UrlParams, session: Session = Depends(get_session), user_
     "short_url": f"http://localhost:8000/{short_code}"
 }
 
+@router.get("/urls", status_code=200)
+def get_urls(session: Session = Depends(get_session), user_id:int = Depends(get_current_user)):
+    statment = select(Urls).where(Urls.user_id == user_id)
+    res = session.exec(statment)
+
+    return res.all()
+
 class RedirectParams(BaseModel):
     pass
 
