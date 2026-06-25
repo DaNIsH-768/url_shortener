@@ -6,7 +6,7 @@ from ..models import User
 import jwt
 from datetime import datetime, timedelta
 import os
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,8 +14,8 @@ load_dotenv()
 router = APIRouter()
 
 class RegisterParams(BaseModel):
-    email: str = ""
-    password: str = ""
+    email: EmailStr
+    password: str = Field(min_length=8)
     confirm_password: str = ""
 
 class LoginParams(BaseModel):

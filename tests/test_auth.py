@@ -24,15 +24,15 @@ client = TestClient(app)
 
 def test_register_duplicate_email():
     with Session(test_engine) as s:
-        user = User(email="mock@gmail.com", password="")
+        user = User(email="mock@gmail.com", password="password")
         s.add(user)
         s.commit()
 
     response = client.post('/auth/register',
     json= {
         "email": "mock@gmail.com",
-        "password": "",
-        "confirm_password": ""
+        "password": "password",
+        "confirm_password": "password"
     })
 
     assert response.status_code == 409
@@ -42,8 +42,8 @@ def test_register_different_password():
     response = client.post('/auth/register',
     json= {
         "email": "test@gmail.com",
-        "password": "a",
-        "confirm_password": ""
+        "password": "password",
+        "confirm_password": "password1"
     })
 
     assert response.status_code == 400
