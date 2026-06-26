@@ -3,30 +3,16 @@ from sqlmodel import create_engine, Session, SQLModel
 from ..main import app
 from ..models import User
 from ..database import get_session
+from .conftest import client, test_engine
 from passlib.hash import bcrypt
-
-TEST_DATABASE_URL = "sqlite:///test.db"
-test_engine = create_engine(TEST_DATABASE_URL)
-
-def override_get_session():
-    with Session(test_engine) as session:
-        yield session
-
-app.dependency_overrides[get_session] = override_get_session
-
-def setup_module():
-    SQLModel.metadata.create_all(test_engine)
-
-def teardown_module():
-    SQLModel.metadata.drop_all(test_engine)
-
-client = TestClient(app)
 
 def test_register_duplicate_email():
     with Session(test_engine) as s:
         user = User(email="mock@gmail.com", password="password")
         s.add(user)
         s.commit()
+
+    print(client.get("/health").status_code)
 
     response = client.post('/auth/register',
     json= {

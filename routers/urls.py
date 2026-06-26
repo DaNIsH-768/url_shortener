@@ -53,7 +53,7 @@ def add_url(url_query: UrlParams, session: Session = Depends(get_session), user_
     "message": "URL shortened successfully",
     "short_code": short_code,
     "short_url": f"http://localhost:8000/{short_code}"
-}
+    }
 
 @router.get("/urls", status_code=200)
 def get_urls(session: Session = Depends(get_session), user_id:int = Depends(get_current_user)):
@@ -62,14 +62,14 @@ def get_urls(session: Session = Depends(get_session), user_id:int = Depends(get_
 
     return res.all()
 
-class RedirectParams(BaseModel):
-    pass
 
 @router.get("/{short_code}", status_code=301)
-def redirect_user(short_code:str, request: Request, session: Session = Depends(get_session)):
+def redirect_user(short_code: str, request: Request, session: Session = Depends(get_session)):
     statment = select(Urls).where(Urls.short_code == short_code)
     results = session.exec(statment)
     res = results.first()
+
+    print(res)
 
     if not res:
         raise HTTPException(status_code=404, detail="No such url exists")
@@ -79,7 +79,8 @@ def redirect_user(short_code:str, request: Request, session: Session = Depends(g
     click = Clicks(clicked_from=request.client.host, url_id=res.id)
     session.add(click)
     session.commit()
-    return RedirectResponse(original_url)
+
+    return RedirectResponse(original_url, status_code=301)
 
 
 
