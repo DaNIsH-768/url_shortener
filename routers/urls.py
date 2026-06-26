@@ -5,6 +5,7 @@ import jwt
 import os
 from ..database import get_session, redis_client
 from ..models import Urls, Clicks
+from ..rate_limiter import limiter
 from ..utils import to_base62, generate_unique_code
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -64,6 +65,7 @@ def get_urls(session: Session = Depends(get_session), user_id:int = Depends(get_
 
 
 @router.get("/{short_code}", status_code=301)
+@limiter.limit('5/minute')
 def redirect_user(short_code: str, request: Request, session: Session = Depends(get_session)):
     cache = redis_client.hgetall(short_code)
 
