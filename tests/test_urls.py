@@ -1,6 +1,6 @@
 from .conftest import client, test_engine
 from sqlmodel import Session, select
-from ..models import User, Urls
+from app.models import User, Urls
 
 
 def get_token(email: str, password: str):
