@@ -1,6 +1,6 @@
 from fastapi import HTTPException, APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func, distinct
 import jwt
 import os
 from ..database import get_session, redis_client
@@ -101,4 +101,27 @@ def redirect_user(short_code: str, request: Request, session: Session = Depends(
     return RedirectResponse(original_url, status_code=301)
 
 
+@router.get('/analytics/{short_code}', status_code=200)
+def get_analytics(short_code: str, session: Session = Depends(get_session), user_id:int = Depends(get_current_user)):
+    statment = select(Urls).where(Urls.short_code == short_code)
+    results = session.exec(statment)
+    res = results.first()
 
+    if not res:
+        raise HTTPException(status_code=404, detail="No such url exists")
+
+    if res.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    url_id = res.id
+
+    click_count_statement = select(func.count(Clicks.url_id)).where(Clicks.url_id == url_id)
+    click_count = session.exec(click_count_statement).one()
+
+    unique_sources_statement = select(func.count(distinct(Clicks.clicked_from))).where(Clicks.url_id == url_id)
+    unique_sources = session.exec(unique_sources_statement).one()
+
+    return {
+        'total_clicks': click_count,
+        'unique_sources': unique_sources
+    }
