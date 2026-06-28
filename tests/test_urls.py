@@ -95,3 +95,40 @@ def test_get_urls_unauthenticated():
 
     assert res.status_code == 401
     assert res.json() == {'detail': 'Not authenticated'}
+
+
+def test_analytics_success():
+    token = get_token("analytics@gmail.com", "password123")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    create_response = client.post("/urls", 
+        json={"url": "https://www.google.com"},
+        headers=headers
+    )
+
+    short_code = create_response.json()["short_code"]
+    res = client.get(f'/analytics/{short_code}', headers=headers)
+
+    assert res.status_code == 200
+    assert "total_clicks" in res.json()
+    assert "unique_sources" in res.json()
+
+
+def test_analytics_forbidden():
+    user_a = get_token("analytics1@gmail.com", "password123")
+    user_a_headers = {"Authorization": f"Bearer {user_a}"}
+
+    user_b = get_token("analytics2@gmail.com", "password123")
+    user_b_headers = {"Authorization": f"Bearer {user_b}"}
+
+    create_response = client.post("/urls", 
+        json={"url": "https://www.google.com"},
+        headers=user_a_headers
+    )
+
+    short_code = create_response.json()["short_code"]
+    res = client.get(f'/analytics/{short_code}', headers=user_b_headers)
+
+    assert res.status_code == 403
+    assert res.json() == {'detail': 'Forbidden'}
+
